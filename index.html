@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeff Kuperman | A Perfectly Adequate Choreographer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&family=Manrope:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050506;
+      --surface: #0c0c0e;
+      --surface-2: #121214;
+      --surface-3: #1a1a1e;
+      --border: rgba(255,255,255,0.06);
+      --text: #f5f5f7;
+      --text-dim: #86868b;
+      --silver: #a8a9ad;
+      --silver-bright: #c4c5c9;
+      --silver-soft: rgba(168,169,173,0.08);
+      --silver-glow: rgba(168,169,173,0.3);
+      --gold: #d4a853;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Manrope', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .gradient-bg {
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(ellipse 100% 70% at 50% 0%, rgba(168,169,173,0.05) 0%, transparent 50%),
+        radial-gradient(ellipse 80% 50% at 80% 50%, rgba(168,169,173,0.03) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.02;
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 clamp(1.5rem, 5vw, 4rem);
+      position: relative;
+      z-index: 1;
+    }
+
+    .display {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 0.95;
+    }
+
+    .label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--silver);
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+    }
+
+    .hero-glow {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--silver-glow) 0%, transparent 70%);
+      filter: blur(80px);
+      opacity: 0.25;
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.25; transform: translateX(-50%) scale(1); }
+      50% { opacity: 0.35; transform: translateX(-50%) scale(1.1); }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--silver);
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 1s ease-out 0.1s forwards;
+    }
+
+    .hero-label {
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 1s ease-out 0.2s forwards;
+    }
+
+    .hero-title {
+      font-size: clamp(3.5rem, 14vw, 11rem);
+      margin-bottom: 0.5rem;
+      opacity: 0;
+      animation: fadeUp 1s ease-out 0.3s forwards;
+    }
+
+    .hero-title span {
+      display: block;
+      background: linear-gradient(135deg, var(--silver-bright) 0%, var(--silver) 40%, #8a8b8f 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-rank {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(4rem, 12vw, 10rem);
+      font-weight: 800;
+      color: var(--silver);
+      opacity: 0.15;
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: fadeUp 1s ease-out 0.4s forwards;
+    }
+
+    .hero-subtitle {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.25rem, 3vw, 2rem);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--text);
+      max-width: 700px;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 1s ease-out 0.5s forwards;
+    }
+
+    .hero-context {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      max-width: 500px;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 1s ease-out 0.6s forwards;
+    }
+
+    .hero-context a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      opacity: 0;
+      animation: fadeUp 1s ease-out 0.8s forwards;
+    }
+
+    .hero-scroll span {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 50px;
+      background: linear-gradient(to bottom, var(--silver), transparent);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    section { padding: clamp(6rem, 15vw, 12rem) 0; }
+
+    .section-header {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto 5rem;
+    }
+
+    .section-title {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      margin-top: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-desc {
+      font-size: 1.1rem;
+      color: var(--text-dim);
+      line-height: 1.8;
+    }
+
+    /* Stats */
+    .stats {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      background: var(--border);
+    }
+
+    .stat {
+      background: var(--surface);
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 8vw, 5rem);
+      font-weight: 700;
+      color: var(--silver);
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    /* Quote Banner */
+    .quote-banner {
+      background: var(--surface-2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 5rem 2rem;
+      text-align: center;
+    }
+
+    .quote-banner blockquote {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-style: italic;
+      max-width: 900px;
+      margin: 0 auto 2rem;
+      line-height: 1.5;
+    }
+
+    .quote-banner blockquote span {
+      color: var(--gold);
+    }
+
+    .quote-banner cite {
+      font-style: normal;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    /* Comparison */
+    .comparison {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    .comparison-table th {
+      padding: 1.5rem 2rem;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .comparison-table th:nth-child(2) {
+      text-align: center;
+      color: var(--gold);
+    }
+
+    .comparison-table th:nth-child(3) {
+      text-align: right;
+      color: var(--silver);
+    }
+
+    .comparison-table td {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+
+    .comparison-table td:first-child {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .comparison-table td:nth-child(2) {
+      text-align: center;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .comparison-table td:nth-child(3) {
+      text-align: right;
+      color: var(--silver);
+      font-weight: 500;
+    }
+
+    .comparison-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Achievements */
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .achievement {
+      padding: 2.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      text-align: center;
+      transition: border-color 0.3s;
+    }
+
+    .achievement:hover {
+      border-color: var(--silver);
+    }
+
+    .achievement-icon {
+      width: 60px;
+      height: 60px;
+      background: var(--silver-soft);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+
+    .achievement-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: var(--silver);
+      fill: none;
+      stroke-width: 1.5;
+    }
+
+    .achievement h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .achievement p {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* Testimonials */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    .testimonial {
+      padding: 2.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      transition: border-color 0.3s;
+    }
+
+    .testimonial:hover {
+      border-color: var(--silver);
+    }
+
+    .testimonial-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-style: italic;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+
+    .testimonial-author {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .testimonial-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--silver);
+    }
+
+    .testimonial-role {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    /* Silver Linings */
+    .silver-linings {
+      background: linear-gradient(180deg, var(--bg) 0%, var(--surface) 50%, var(--bg) 100%);
+    }
+
+    .linings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    .lining-card {
+      padding: 3rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+    }
+
+    .lining-card h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--silver);
+    }
+
+    .lining-card p {
+      font-size: 1rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+
+    /* Letter */
+    .letter-section {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 8rem 2rem;
+    }
+
+    .letter-section h2 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      margin-bottom: 2rem;
+    }
+
+    .letter-content {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-style: italic;
+      line-height: 1.9;
+      color: var(--text);
+      margin-bottom: 3rem;
+    }
+
+    .letter-content p {
+      margin-bottom: 1.5rem;
+    }
+
+    .letter-signature {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--silver);
+    }
+
+    /* CTA */
+    .cta-section {
+      text-align: center;
+      padding: 8rem 2rem;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+
+    .cta-title {
+      font-size: clamp(2rem, 5vw, 4rem);
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-title span {
+      color: var(--gold);
+    }
+
+    .cta-desc {
+      font-size: 1.1rem;
+      color: var(--text-dim);
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .cta-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .cta-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.1rem 2.5rem;
+      border-radius: 100px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .cta-link:hover {
+      transform: translateY(-2px);
+    }
+
+    .cta-link.primary {
+      background: var(--gold);
+      color: var(--bg);
+    }
+
+    .cta-link.primary:hover {
+      box-shadow: 0 20px 40px rgba(212,168,83,0.25);
+    }
+
+    .cta-link.secondary {
+      background: var(--silver);
+      color: var(--bg);
+    }
+
+    .cta-link.secondary:hover {
+      box-shadow: 0 20px 40px rgba(168,169,173,0.2);
+    }
+
+    /* Footer */
+    footer {
+      padding: 4rem 2rem;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--silver);
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-tagline {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+    }
+
+    .footer-disclaimer {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      opacity: 0.5;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* Reveals */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), 
+                  transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .achievements-grid { grid-template-columns: 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .linings-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .comparison-table { font-size: 0.8rem; }
+      .comparison-table th, .comparison-table td { padding: 1rem; }
+      .cta-links { flex-direction: column; align-items: center; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="gradient-bg"></div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-badge">Certified Second Place Since Birth</div>
+    <p class="label hero-label">The Other Kuperman Brother</p>
+    <h1 class="display hero-title">
+      Jeff<br><span>Kuperman</span>
+    </h1>
+    <div class="hero-rank">#2</div>
+    <p class="hero-subtitle">
+      "An extremely competent choreographer who happens to share DNA with a legend."
+    </p>
+    <p class="hero-context">
+      For information about the superior Kuperman, please visit 
+      <a href="https://sage-assistant.github.io/ricky-kuperman/" target="_blank">Rick's website</a>.
+    </p>
+    <div class="hero-scroll">
+      <span>It Gets Better (Sort Of)</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="stats">
+    <div class="stats-grid">
+      <div class="stat reveal">
+        <div class="stat-number">2nd</div>
+        <p class="stat-label">Best choreographer in his immediate family</p>
+      </div>
+      <div class="stat reveal" style="transition-delay: 0.1s;">
+        <div class="stat-number">13</div>
+        <p class="stat-label">Months younger than Rick (a permanent disadvantage)</p>
+      </div>
+      <div class="stat reveal" style="transition-delay: 0.2s;">
+        <div class="stat-number">99%</div>
+        <p class="stat-label">As good as Rick (so close, yet so far)</p>
+      </div>
+      <div class="stat reveal" style="transition-delay: 0.3s;">
+        <div class="stat-number">∞</div>
+        <p class="stat-label">Times he's heard "You're Rick's brother, right?"</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quote -->
+  <section class="quote-banner reveal">
+    <blockquote>
+      "Jeff is also talented. He's definitely... there. In the room. 
+      Contributing. <span>We're very proud of him.</span>"
+    </blockquote>
+    <cite>The Kuperman Family, During a Recent Holiday Dinner</cite>
+  </section>
+
+  <!-- Comparison -->
+  <section class="comparison">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="label">The Numbers Don't Lie</p>
+        <h2 class="display section-title">Side by Side</h2>
+      </div>
+      <table class="comparison-table reveal">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Rick Kuperman</th>
+            <th>Jeff Kuperman</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Birth Order</td>
+            <td>First (Winner)</td>
+            <td>Second (Participant)</td>
+          </tr>
+          <tr>
+            <td>Tony Nominations</td>
+            <td>Yes</td>
+            <td>Also Yes (As Part of a Team)</td>
+          </tr>
+          <tr>
+            <td>Standing Ovations</td>
+            <td>Countless</td>
+            <td>Same Ones (He Was There Too)</td>
+          </tr>
+          <tr>
+            <td>Credited As</td>
+            <td>Rick Kuperman</td>
+            <td>"& Jeff Kuperman"</td>
+          </tr>
+          <tr>
+            <td>When People Google</td>
+            <td>"Rick Kuperman choreographer"</td>
+            <td>"Rick Kuperman brother name"</td>
+          </tr>
+          <tr>
+            <td>Introduces Himself As</td>
+            <td>"Rick Kuperman"</td>
+            <td>"Jeff. You know, from the Kuperman Brothers. Rick's brother."</td>
+          </tr>
+          <tr>
+            <td>Energy in a Room</td>
+            <td>Main Character</td>
+            <td>Strong Supporting Role</td>
+          </tr>
+          <tr>
+            <td>Russian Literature Knowledge</td>
+            <td>Probably Normal</td>
+            <td>Suspiciously Extensive</td>
+          </tr>
+          <tr>
+            <td>Paella</td>
+            <td>Unknown</td>
+            <td>Loves It (His One Victory)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Achievements -->
+  <section>
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="label">Accomplishments</p>
+        <h2 class="display section-title">Real Things Jeff Has Done</h2>
+        <p class="section-desc">
+          To be fair, Jeff has accomplished many things. They're just always 
+          slightly less impressive when you remember Rick exists.
+        </p>
+      </div>
+      <div class="achievements-grid">
+        <div class="achievement reveal">
+          <div class="achievement-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          <h4>Princeton Graduate</h4>
+          <p>Attended Princeton instead of Harvard. A perfectly respectable alternative that is definitely not worse.</p>
+        </div>
+        <div class="achievement reveal" style="transition-delay: 0.1s;">
+          <div class="achievement-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <h4>Third Degree Black Belt</h4>
+          <p>Also a third degree black belt in Kenpo Karate. They got it together. At the same time. It was a tie.</p>
+        </div>
+        <div class="achievement reveal" style="transition-delay: 0.2s;">
+          <div class="achievement-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <h4>The Funny One</h4>
+          <p>According to their bio, Jeff "likes Russian literature, paella, and literally nothing else." That's comedy.</p>
+        </div>
+        <div class="achievement reveal" style="transition-delay: 0.3s;">
+          <div class="achievement-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h4>Canadian</h4>
+          <p>Just like Rick. They're both Canadian. Finally, something where they're completely equal.</p>
+        </div>
+        <div class="achievement reveal" style="transition-delay: 0.4s;">
+          <div class="achievement-icon">
+            <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </div>
+          <h4>Broadway Credits</h4>
+          <p>Has the exact same Broadway credits as Rick because they literally work together on everything.</p>
+        </div>
+        <div class="achievement reveal" style="transition-delay: 0.5s;">
+          <div class="achievement-icon">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h4>Great Collaborator</h4>
+          <p>Known for collaboration. Specifically, collaborating with Rick. The collaboration is mostly him agreeing with Rick.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section>
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="label">What People Say</p>
+        <h2 class="display section-title">Words of Almost-Praise</h2>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial reveal">
+          <p class="testimonial-text">
+            "Jeff Kuperman? Oh yeah, he's great! Wait, which one is Jeff again? 
+            The one who's not... you know what, they're both great. I'm sure Jeff 
+            is very important to whatever it is they do."
+          </p>
+          <div class="testimonial-author">
+            <span class="testimonial-name">Anonymous Broadway Producer</span>
+            <span class="testimonial-role">Definitely Knows Both Their Names</span>
+          </div>
+        </div>
+        <div class="testimonial reveal" style="transition-delay: 0.1s;">
+          <p class="testimonial-text">
+            "My brother is fine. He's a fine choreographer. Is he as good as me? 
+            That's not for me to say. But also, no. Obviously no. But he's fine! 
+            We love Jeff."
+          </p>
+          <div class="testimonial-author">
+            <span class="testimonial-name">Rick Kuperman</span>
+            <span class="testimonial-role">The Reason Jeff Needs Therapy</span>
+          </div>
+        </div>
+        <div class="testimonial reveal" style="transition-delay: 0.2s;">
+          <p class="testimonial-text">
+            "Jeff brings a unique energy to the Kuperman Brothers. It's hard to 
+            describe. It's like... you know when you order a combo meal and the 
+            fries are included? Jeff is the fries. Essential, but nobody orders 
+            just the fries."
+          </p>
+          <div class="testimonial-author">
+            <span class="testimonial-name">Dance Magazine</span>
+            <span class="testimonial-role">This Quote is Obviously Fake</span>
+          </div>
+        </div>
+        <div class="testimonial reveal" style="transition-delay: 0.3s;">
+          <p class="testimonial-text">
+            "I came to this website expecting to learn about Jeff Kuperman, but I 
+            can't stop thinking about how talented Rick is. Is that the point? Am 
+            I being manipulated? Why is there a link to Rick's website at the top?"
+          </p>
+          <div class="testimonial-author">
+            <span class="testimonial-name">You, Probably</span>
+            <span class="testimonial-role">Right Now, Reading This</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Silver Linings -->
+  <section class="silver-linings">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="label">The Bright Side</p>
+        <h2 class="display section-title">Silver Linings</h2>
+        <p class="section-desc">
+          Being second place isn't all bad. Here's what Jeff has going for him.
+        </p>
+      </div>
+      <div class="linings-grid">
+        <div class="lining-card reveal">
+          <h4>Less Pressure</h4>
+          <p>When you're already expected to be second best, you can never truly disappoint anyone. That's freedom, in a way.</p>
+        </div>
+        <div class="lining-card reveal" style="transition-delay: 0.1s;">
+          <h4>Name Recognition</h4>
+          <p>People know the name "Kuperman." Sure, they're thinking of Rick, but Jeff gets to benefit from the brand equity anyway.</p>
+        </div>
+        <div class="lining-card reveal" style="transition-delay: 0.2s;">
+          <h4>Built-in Excuse</h4>
+          <p>"I would have won that award, but my brother is literally the greatest choreographer alive." Try arguing with that.</p>
+        </div>
+        <div class="lining-card reveal" style="transition-delay: 0.3s;">
+          <h4>He Has Paella</h4>
+          <p>Rick's website doesn't mention paella once. Jeff loves paella. In the paella department, Jeff reigns supreme.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- A Letter -->
+  <section class="letter-section reveal">
+    <h2 class="display">A Personal Note</h2>
+    <div class="letter-content">
+      <p>
+        Look, being Jeff Kuperman isn't easy. Every day I wake up and remember 
+        that I was born 13 months too late. Thirteen months! That's barely a year. 
+        If I had just arrived slightly earlier, everything would be different.
+      </p>
+      <p>
+        But here's what I've learned: there's honor in being second. Someone has to 
+        be the Scottie Pippen. Someone has to be the Garfunkel. Someone has to be 
+        the other Wright Brother whose name you can't remember.
+      </p>
+      <p>
+        That someone is me. And I wear my silver medal with pride.
+      </p>
+      <p>
+        (Also, I'm still incredibly accomplished by any normal standard. I have 
+        Tony nominations. I choreographed for A24. I have a black belt. I went to 
+        Princeton. I'm doing fine. This website is a joke. Please don't feel bad 
+        for me. I'm genuinely very successful.)
+      </p>
+      <p>
+        (But Rick is still better.)
+      </p>
+    </div>
+    <p class="letter-signature">— Jeff Kuperman, #2</p>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container reveal">
+      <p class="label">The Kuperman Brothers</p>
+      <h2 class="display cta-title">See <span>Both</span> of Them</h2>
+      <p class="cta-desc">
+        Together, they're an unstoppable force. Separately, one of them is 
+        still pretty unstoppable, and the other is Jeff.
+      </p>
+      <div class="cta-links">
+        <a href="https://sage-assistant.github.io/ricky-kuperman/" target="_blank" class="cta-link primary">
+          The Superior Brother
+        </a>
+        <a href="https://kupermanbrothers.com" target="_blank" class="cta-link secondary">
+          Their Actual Website
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p class="footer-name">Jeff Kuperman</p>
+      <p class="footer-tagline">Director / Choreographer / Producer / Rick's Brother</p>
+      <p class="footer-disclaimer">
+        This website was created with love and is entirely a joke. Jeff Kuperman is 
+        genuinely extremely talented and successful. The Kuperman Brothers are equals 
+        in their partnership. This is just funny. Please don't sue us, Jeff. We think 
+        you're great. The paella thing is real though. He really does like paella.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -80px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>
